@@ -8,6 +8,7 @@ import { Providers } from "@/components/providers"
 import { SiteBlob } from "@/components/site-blob"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { ChatBubble } from "@/components/chat-bubble"
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <SiteBlob />
               <div className="flex-1">{children}</div>
               <SiteFooter />
+              <ChatBubble />
             </div>
           </Providers>
         </body>
