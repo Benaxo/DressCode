@@ -143,9 +143,9 @@ export function ChatBubble() {
                                     <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 flex items-center justify-center mb-4">
                                         <Sparkles className="h-8 w-8 text-violet-600 dark:text-violet-400" />
                                     </div>
-                                    <p className="font-medium text-foreground">👋 Hello! I'm your AI Stylist.</p>
+                                    <p className="font-medium text-foreground">👋 Hello! I&apos;m your AI Stylist.</p>
                                     <p>Ask me something like:</p>
-                                    <p className="italic text-violet-600 dark:text-violet-400">"What should I wear for a summer wedding?"</p>
+                                    <p className="italic text-violet-600 dark:text-violet-400">&quot;What should I wear for a summer wedding?&quot;</p>
                                 </div>
                             )}
                             {messages.map((m: Message) => (

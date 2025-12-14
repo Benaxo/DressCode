@@ -59,18 +59,19 @@ type MouseMotionState = {
     opacity: MotionValue<number>
 }
 
-function useMouse(): [MouseMotionState, RefObject<HTMLDivElement | null>] {
+function useMouse(): [MouseMotionState, RefObject<HTMLDivElement>] {
     const elementX = useMotionValue<number | null>(null)
     const elementY = useMotionValue<number | null>(null)
     const elementLeft = useTransform(elementX, (v) => v === null ? "-9999px" : `${v}px`)
     const elementTop = useTransform(elementY, (v) => v === null ? "-9999px" : `${v}px`)
     const opacity = useMotionValue<number>(0)
-    const ref = useRef<HTMLDivElement>(null)
+    const ref = useRef<HTMLDivElement>(null!)
 
     useLayoutEffect(() => {
+        const element = ref.current
+        if (!element) return
         const handleMouseMove = (e: MouseEvent) => {
-            if (!ref.current) return
-            const { left, top } = ref.current.getBoundingClientRect()
+            const { left, top } = element.getBoundingClientRect()
             elementX.set(e.clientX - left)
             elementY.set(e.clientY - top)
             opacity.set(1)
@@ -80,11 +81,11 @@ function useMouse(): [MouseMotionState, RefObject<HTMLDivElement | null>] {
             elementY.set(null)
             opacity.set(0)
         }
-        ref.current?.addEventListener("mousemove", handleMouseMove)
-        ref.current?.addEventListener("mouseleave", handleMouseLeave)
+        element.addEventListener("mousemove", handleMouseMove)
+        element.addEventListener("mouseleave", handleMouseLeave)
         return () => {
-            ref.current?.removeEventListener("mousemove", handleMouseMove)
-            ref.current?.removeEventListener("mouseleave", handleMouseLeave)
+            element.removeEventListener("mousemove", handleMouseMove)
+            element.removeEventListener("mouseleave", handleMouseLeave)
         }
     }, [elementX, elementY, opacity])
 

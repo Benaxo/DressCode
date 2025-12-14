@@ -2,10 +2,9 @@ import {
   LucideProps,
   Moon,
   SunMedium,
-  type Icon as LucideIcon,
 } from "lucide-react"
 
-export type Icon = LucideIcon
+export type Icon = typeof Moon
 
 export const Icons = {
   sun: SunMedium,
