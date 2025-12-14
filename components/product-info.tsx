@@ -9,6 +9,8 @@ import { SanityProduct } from "@/config/inventory"
 import { getSizeName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
+import { FittingRoomModal } from "@/components/fitting-room-modal"
+import { urlForImage } from "@/sanity/lib/image"
 
 interface Props {
   product: SanityProduct
@@ -48,8 +50,10 @@ export function ProductInfo({ product }: Props) {
 
       <div className="mt-3">
         <h2 className="sr-only">Product information</h2>
-        <p className="text-3xl tracking-tight">{formatCurrencyString({ value: product.price, 
-          currency: product.currency })}</p>
+        <p className="text-3xl tracking-tight">{formatCurrencyString({
+          value: product.price,
+          currency: product.currency
+        })}</p>
       </div>
 
       <div className="mt-6">
@@ -78,6 +82,15 @@ export function ProductInfo({ product }: Props) {
           </Button>
         </div>
       </form>
+
+      {product.images?.[0] && (
+        <div className="mt-4">
+          <FittingRoomModal
+            garmentUrl={urlForImage(product.images[0]).url()}
+            category={product.categories?.[0]}
+          />
+        </div>
+      )}
     </div>
   )
 }

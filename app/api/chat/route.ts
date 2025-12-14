@@ -2,18 +2,52 @@ import { OpenAIStream, StreamingTextResponse } from 'ai';
 import OpenAI from 'openai';
 import { client } from "@/sanity/lib/client"
 import { groq } from "next-sanity"
+import { checkRateLimit, getRateLimitInfo } from "@/lib/rate-limit"
+import { headers } from "next/headers"
 
-// Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
 });
 
-export const runtime = 'edge';
+function getClientIP(): string {
+  const headersList = headers()
+  const forwardedFor = headersList.get('x-forwarded-for')
+  const realIP = headersList.get('x-real-ip')
+  
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim()
+  }
+  if (realIP) {
+    return realIP
+  }
+  return 'unknown'
+}
 
 export async function POST(req: Request) {
+  const clientIP = getClientIP()
+  const rateLimit = checkRateLimit(clientIP)
+  
+  if (!rateLimit.allowed) {
+    const resetDate = new Date(rateLimit.resetAt)
+    return new Response(
+      JSON.stringify({ 
+        error: `Daily limit reached (20 messages/day). Resets at midnight.`,
+        resetAt: resetDate.toISOString()
+      }), 
+      { 
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': resetDate.toISOString()
+        }
+      }
+    )
+  }
+
   const { messages } = await req.json();
 
-  // 1. Fetch products from Sanity to give the AI context
   const products = await client.fetch(
     groq`*[_type == "product"] {
       _id,
@@ -26,7 +60,6 @@ export async function POST(req: Request) {
     }`
   );
 
-  // 2. Create a system prompt with the product catalog
   const systemPrompt = `
     You are a helpful Personal Stylist for "DressCode", a premium fashion store.
     
@@ -39,11 +72,11 @@ export async function POST(req: Request) {
     - Be friendly, stylish, and concise.
     - If you suggest a product, you can format it as **Product Name** ($Price).
     - Do not invent products that are not in the catalog.
+    - Respond in English.
   `;
 
-  // 3. Call OpenAI
   const response = await openai.chat.completions.create({
-    model: 'gpt-4',
+    model: 'meta-llama/llama-3.1-70b-instruct',
     stream: true,
     messages: [
       { role: 'system', content: systemPrompt },
@@ -51,9 +84,24 @@ export async function POST(req: Request) {
     ],
   });
 
-  // 4. Convert the response into a friendly text-stream
   const stream = OpenAIStream(response);
 
-  // 5. Respond with the stream
-  return new StreamingTextResponse(stream);
+  return new StreamingTextResponse(stream, {
+    headers: {
+      'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+      'X-RateLimit-Reset': new Date(rateLimit.resetAt).toISOString()
+    }
+  });
+}
+
+export async function GET() {
+  const clientIP = getClientIP()
+  const info = getRateLimitInfo(clientIP)
+  
+  return new Response(JSON.stringify({
+    remaining: info.remaining,
+    resetAt: new Date(info.resetAt).toISOString()
+  }), {
+    headers: { 'Content-Type': 'application/json' }
+  })
 }

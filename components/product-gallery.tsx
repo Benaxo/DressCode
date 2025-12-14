@@ -27,15 +27,13 @@ export function ProductGallery({ product }: Props) {
             >
               <span className="absolute inset-0 overflow-hidden rounded-md">
                 <Image
-                  src={urlForImage(image).url()}
-                  width={200}
-                  height={200}
+                  src={urlForImage(image).width(200).height(200).url()}
+                  fill
+                  sizes="100px"
                   alt=""
-                  className="h-full w-full object-cover object-center"
+                  className="object-cover object-center"
                   placeholder="blur"
-                  blurDataURL={`data:image/svg+xml;base64,${toBase64(
-                    shimmer(200, 200)
-                  )}`}
+                  blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(200, 200))}`}
                 />
               </span>
               {index === selectedImage && <span
@@ -48,18 +46,16 @@ export function ProductGallery({ product }: Props) {
       </div>
 
       {/* Main Image */}
-      <div className="aspect-h-1 aspect-w-1 w-full">
+      <div className="relative aspect-square w-full">
         <Image
           priority
-          src={urlForImage(product.images[selectedImage]).url()}
+          src={urlForImage(product.images[selectedImage]).width(800).height(800).url()}
           alt={`Main ${product.name} image`}
-          width={600}
-          height={750}
+          fill
+          sizes="(max-width: 1024px) 100vw, 50vw"
           placeholder="blur"
-                  blurDataURL={`data:image/svg+xml;base64,${toBase64(
-                    shimmer(600, 750)
-                  )}`}
-          className="h-full w-full border-2 border-gray-200 object-cover object-center shadow-sm dark:border-gray-800 sm:rounded-lg"
+          blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(600, 600))}`}
+          className="border-2 border-gray-200 object-cover object-center shadow-sm dark:border-gray-800 sm:rounded-lg"
         />
       </div>
     </div>

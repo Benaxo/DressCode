@@ -79,3 +79,59 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+@keyframes chat-bubble-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4), 0 10px 25px -5px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(139, 92, 246, 0), 0 10px 25px -5px rgba(139, 92, 246, 0.5);
+  }
+}
+
+.chat-bubble-pulse {
+  animation: chat-bubble-glow 2s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shine {
+  animation: shine 2s ease-in-out infinite;
+}
+
+.btn-tryon {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 4px 4px 0px theme('colors.fuchsia.800');
+  transition: all 0.1s ease;
+}
+
+.btn-tryon:hover {
+  box-shadow: 2px 2px 0px theme('colors.fuchsia.800');
+  transform: translate(2px, 2px);
+}
+
+.btn-tryon:active {
+  box-shadow: 0px 0px 0px theme('colors.fuchsia.800');
+  transform: translate(4px, 4px);
+}
+
+.btn-tryon::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transform: rotate(30deg) translateX(-100%);
+  animation: shine 3s ease-in-out infinite;
+}
