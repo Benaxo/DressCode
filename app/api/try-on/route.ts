@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Replicate, { FileOutput } from "replicate";
 
+export const dynamic = 'force-dynamic'
+
 const replicate = new Replicate({
     auth: process.env.REPLICATE_API_TOKEN,
 });

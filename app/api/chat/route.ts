@@ -5,6 +5,8 @@ import { groq } from "next-sanity"
 import { checkRateLimit, getRateLimitInfo } from "@/lib/rate-limit"
 import { headers } from "next/headers"
 
+export const dynamic = 'force-dynamic'
+
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: "https://openrouter.ai/api/v1",
