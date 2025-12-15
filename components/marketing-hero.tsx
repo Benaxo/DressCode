@@ -1,11 +1,12 @@
 "use client"
 
-import { motion, useScroll, useTransform } from "framer-motion"
-import { useRef, type ReactNode, useLayoutEffect } from "react"
+import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { useRef, type ReactNode, useLayoutEffect, useState, useEffect } from "react"
 import { Sparkles, MessageCircle } from "lucide-react"
 import { useMotionValue } from "framer-motion"
 import type { MotionValue } from "framer-motion"
 import type { RefObject } from "react"
+import Image from "next/image"
 
 interface ShowcaseItem {
     image: string
@@ -26,33 +27,38 @@ const gridLayout = [
     [3, null, null, 4],
 ]
 
-const ShowcaseImage = ({ item }: { item: ShowcaseItem }) => {
+const ShowcaseImage = ({ item, index }: { item: ShowcaseItem; index: number }) => {
     const ref = useRef<HTMLDivElement>(null)
+    const isInView = useInView(ref, { once: false, amount: 0.3 })
     const { scrollYProgress } = useScroll({
         target: ref,
-        offset: ["start end", "end start"],
+        offset: ["start 90%", "end 10%"],
     })
-    const scale = useTransform(scrollYProgress, [0, 0.4, 0.7, 1], [0, 1, 1, 0])
+    const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.3, 1, 1, 0.3])
+    const opacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0, 1, 1, 0])
 
     return (
         <motion.div
             ref={ref}
-            className="relative h-full w-full"
+            className="relative h-full w-full will-change-transform"
             style={{
-                transformOrigin: item.origin === "left" ? "bottom left" : "bottom right",
+                transformOrigin: item.origin === "left" ? "center left" : "center right",
                 scale,
+                opacity,
             }}
         >
-            <img
+            <Image
                 src={item.image}
                 alt="Fashion showcase"
-                className="h-full w-full object-cover rounded-xl shadow-2xl transition-all hover:scale-95"
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                priority={index < 2}
+                className="object-cover rounded-xl shadow-2xl"
             />
         </motion.div>
     )
 }
 
-// Gradient Card Components
 type MouseMotionState = {
     elementLeft: MotionValue<string>
     elementTop: MotionValue<string>
@@ -121,18 +127,28 @@ const FeatureCard = ({ icon, title, description }: { icon: ReactNode; title: str
 }
 
 export function MarketingHero() {
+    const containerRef = useRef<HTMLDivElement>(null)
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end end"],
+    })
+
     return (
-        <div className="w-full">
+        <div className="w-full" ref={containerRef}>
             {/* Hero Section with Scroll Effect */}
-            <section className="relative w-full min-h-screen">
+            <section className="relative w-full" style={{ minHeight: "250vh" }}>
                 <div className="absolute left-1/2 top-20 -translate-x-1/2 text-center z-10">
-                    <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                    <motion.span 
+                        className="text-xs uppercase tracking-widest text-muted-foreground"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                    >
                         ↓ Scroll to explore
-                    </span>
+                    </motion.span>
                 </div>
 
                 <div className="pointer-events-none sticky top-1/2 z-20 -translate-y-1/2 text-center mix-blend-difference">
-                    <h2 className="text-6xl md:text-8xl font-bold tracking-tighter text-white">
+                    <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tighter text-white">
                         Try Before
                         <br />
                         <span className="bg-gradient-to-r from-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
@@ -142,14 +158,14 @@ export function MarketingHero() {
                     <p className="mt-4 text-white/60 text-lg">Virtual Try-On with AI</p>
                 </div>
 
-                {/* Showcase Grid */}
-                <div className="relative z-0 mb-[30vh] mt-[40vh] px-4 max-w-6xl mx-auto">
+                {/* Showcase Grid - More spacing for scroll time */}
+                <div className="relative z-0 pt-[60vh] pb-[40vh] px-4 max-w-5xl mx-auto space-y-[20vh]">
                     {gridLayout.map((row, rowIndex) => (
-                        <div key={rowIndex} className="flex w-full gap-4 mb-4">
+                        <div key={rowIndex} className="flex w-full gap-4 h-[40vh] md:h-[50vh]">
                             {row.map((itemIndex, colIndex) => (
-                                <div key={colIndex} className="aspect-square flex-1">
+                                <div key={colIndex} className="relative flex-1">
                                     {itemIndex !== null && showcaseItems[itemIndex] && (
-                                        <ShowcaseImage item={showcaseItems[itemIndex]} />
+                                        <ShowcaseImage item={showcaseItems[itemIndex]} index={itemIndex} />
                                     )}
                                 </div>
                             ))}
