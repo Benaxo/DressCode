@@ -1,18 +1,10 @@
-import {
-  JetBrains_Mono as FontMono,
-  Plus_Jakarta_Sans as FontSans,
-} from "next/font/google"
-
-export const fontSans = FontSans({
-  subsets: ["latin"],
+// Use system fonts to avoid network timeouts during build
+export const fontSans = {
   variable: "--font-sans",
-  display: "swap",
-  fallback: ["system-ui", "sans-serif"],
-})
+  className: "",
+}
 
-export const fontMono = FontMono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
-  fallback: ["monospace"],
-})
+export const fontMono = {
+  variable: "--font-mono", 
+  className: "",
+}
